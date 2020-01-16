@@ -1,0 +1,232 @@
+1. 将有序数组转换为二叉搜索树
+
+   - 递归：二叉搜索树的中序遍历刚好可以输出一个升序数组。
+   - 前序和后序遍历的作用就是：提供根结点。找到根结点，然后把数组一分为二，进入递归即可。边界只包括左边界，不包括右界。
+   - 平衡二叉树，既然要做到平衡，我们只要把根节点选为数组的中点即可。
+
+2. 平衡二叉树递归解法步骤
+
+   - 找终止条件；
+
+   - 思考返回值；
+
+   - 单步操作应该怎样写。
+
+   - ```java
+      public ReturnNode isBST(TreeNode root){
+             if(root == null){
+                 return new ReturnNode(0, true);
+             }
+             //不平衡的情况有3种：左树不平衡、右树不平衡、左树和右树差的绝对值大于1
+             ReturnNode left = isBST(root.left);
+             ReturnNode right = isBST(root.right);
+             if(left.isB == false || right.isB == false){
+                 return new ReturnNode(0, false);
+             }
+             if(Math.abs(left.depth - right.depth) > 1){
+                 return new ReturnNode(0, false);
+             }
+             //不满足上面3中情况，说明平衡了，数的深度为左右两子树最大深度+1
+             return new ReturnNode(Math.max(left.depth, right.depth) + 1, true);
+         }
+     ```
+
+3. 二叉树的最小深度
+
+   - ```java
+         public int minDepth(TreeNode root){
+             if (root == null){
+                 return 0;
+             }
+             
+             if ((root.left == null) && (root.right == null)){
+                 return 1;
+             }
+             
+             int min_depth = Integer.MAX_VALUE;
+             if (root.left != null){
+                 min_depth = Math.min(minDepth(root.left), min_depth);
+             }
+             if (root.right != null){
+                 min_depth = Math.min(minDepth(root.right), min_depth);
+             }
+             return min_depth + 1;
+         }
+     ```
+
+   - 题解(递归)：
+
+     1. 递归三部曲:第一找到终止条件：
+
+        - ```Java
+          //没有结点，只有一个结点
+          if(root == null){
+              return 0;
+          }
+          if((root.left == null)&&(root.right == null)){
+              return 1;
+          }
+          ```
+
+     2. 分别递归左右子树，找到深度：
+
+        - ```java
+          int min_depth = Integer.MAX_VALUE;
+          if (root.left != null){
+              min_depth = Math.min(minDepth(root.left), min_depth);
+          }
+          if (root.right != null){
+            	min_depth = Math.min(minDepth(root.right), min_depth);
+          }
+          ```
+
+     3. 当以上情况都不满足时，执行最后一步汇总：
+        
+     - min_depth + 1
+   
+- 利用栈将上述解法中的递归变成迭代：
+  
+     - 深度优先搜索策略访问：当访问到叶子结点是更新最小深度。
+     
+     - 思路：从一个包含根结点的栈开始，当前深度为1。然后开始迭代：弹出当前栈顶元素，将它的孩子结点压入栈中，当遇到叶子结点更新最小深度。
+     
+     - ```java
+           public int minDepth(TreeNode root) {
+               LinkedList<Map.Entry<TreeNode, Integer>> stack = new LinkedList<>();
+               if (root == null){
+                   return 0;
+               }
+               else {
+                   stack.add(Map.entry(root,1));
+               }
+               int min_depth = Integer.MAX_VALUE;
+               while (!stack.isEmpty()){
+                   Map.Entry<TreeNode,Integer> current = stack.poll();
+                   root = current.getKey();
+                   int current_depth = current.getValue();
+                   if ((root.left == null) && (root.right == null)){
+                       min_depth = Math.min(min_depth, current_depth);
+                   }
+                   if (root.left != null){
+                       stack.add(Map.entry(root.left, current_depth + 1));
+                   }
+                   if (root.right != null){
+                       stack.add(Map.entry(root.right, current_depth + 1));
+                   }
+               }
+               return min_depth;
+           }
+       ```
+     
+   - 宽度优先搜索
+   
+     - 思路：按照树的层次去迭代，第一个访问到的叶子就是最小深度的结点，就不需要遍历所以的结点了。
+   
+     - ```java
+           public int minDepth(TreeNode root) {
+               LinkedList<Map.Entry<TreeNode, Integer>> stack = new LinkedList<>();
+               if (root == null){
+                   return 0;
+               }
+               else {
+                   stack.add(Map.entry(root,1));
+               }
+               int current_depth = 0;
+               while (!stack.isEmpty()){
+                   Map.Entry<TreeNode,Integer> current = stack.poll();
+                   root = current.getKey();
+                   int current_depth = current.getValue();
+                   if ((root.left == null) && (root.right == null)){
+                       break;
+                   }
+                   if (root.left != null){
+                       stack.add(Map.entry(root.left, current_depth + 1));
+                   }
+                   if (root.right != null){
+                       stack.add(Map.entry(root.right, current_depth + 1));
+                   }
+               }
+               return current_depth;
+           }
+       ```
+   
+4. 路径总和
+
+   - 递归，遍历整棵树：如果当前结点不是叶子结点，对他的所有孩子结点，递归调用hasPathSum函数，其中sum值减去当前结点的权值；如果当前结点是叶子，检查sum值是否为零，也就是是否找到了给定的目标和。
+
+     - ```java
+           public boolean hasPathSum(TreeNode root, int sum){
+               if (root == null){
+                   return false;
+               }
+               sum -= root.val;
+               if ((root.left == null) && (root.right == null)){
+                   return (sum == 0);
+               }
+               return hasPathSum(root.left,sum) || hasPathSum(root.right, sum);
+           }
+       ```
+
+5. 路径总和||
+
+   - 需要有一个list来存储每条路径所包含的结点，不用为每条路径path都创立一个新的list，这样会很浪费时间，我们在递归时可以传递list的引用，再通过**回溯**的方法来去报path的正确性。
+
+   - ```java
+     public List<List<Integer>> pathSum(TreeNode root, int sum) {
+             List<List<Integer>> paths=new ArrayList<List<Integer>>();
+             go(root,0,sum,new ArrayList<Integer>(),paths);
+             return paths;
+         }
+         
+         void go(TreeNode node,int sum,int target,ArrayList<Integer> path,List<List<Integer>> paths){
+             if(node==null)return;
+             sum+=node.val;
+             path.add(node.val);
+             //判断该路径和是否符合目标值
+             if(sum==target&&node.left==null&&node.right==null){
+                 paths.add(new ArrayList<Integer>(path));
+             }else{
+                 go(node.left,sum,target,path,paths);
+                 go(node.right,sum,target,path,paths);
+             }
+             //回溯
+             path.remove(path.size()-1);
+         }
+     
+     ```
+
+6. 二叉树展开成链表
+
+   - 展开的顺序就是二叉树的先序遍历。
+
+   - 思路：
+
+     - 将左子树插到右子树的地方
+
+     - 将原来的右子树接到左子树的最右边结点
+
+     - 考虑新的右子树的根结点，一直重复上边的过程，知道新的右子树为null
+
+     - ```java
+           public void flatten(TreeNode root){
+               while(root != null){
+                   if (root.left == null){
+                       root = root.right;
+                   }else {
+                       //找左子树最右边的结点
+                       TreeNode pre = root.left;
+                       while (pre.right != null){
+                           pre = pre.right;
+                       }
+                       //将原来的右子树接到左子树的最右边结点
+                       pre.right = root.right;
+                       //将左子树差到右子树的地方
+                       root.right = root.left;
+                       root.left = null;
+                       root = root.right;
+                   }
+               }
+           }
+       ```
+
+       

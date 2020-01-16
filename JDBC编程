@@ -1,0 +1,4 @@
+# JDBC简介
+
+1. JDBC(Java DataBase Connectivity)的缩写，它是Java程序访问数据库的标准接口。
+2. 在Java程序访问数据库时，Java代码并不是直接通过TCP连接去访问数据库，而是通过JDBC接口来访问，而JDBC接口则是通过JDBC驱动来实现真正对数据库的访问。
